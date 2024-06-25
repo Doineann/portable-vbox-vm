@@ -18,29 +18,28 @@
 :: count number of arguments
 set argCount=0
 for %%x in (%*) do if not "%%~x"=="" set /a argCount+=1
-
 if %argCount%==1 goto read-whole-file
 if %argCount%==2 goto read-single-key
 if %argCount%==3 goto read-single-key-into-variable
-goto incorrect-number-of-passed-arguments
+goto usage
 
 :read-whole-file
 for /f "tokens=1,2* delims==" %%g in ('findstr /r /c:"^[ a-zA-Z_0-9\-]*=.*" "%~1"') do (
     call :trim-and-set-key-value "%%g" "%%h"
 )
-goto :eof
+exit /b 0
 
 :read-single-key
 for /f "tokens=1,2* delims==" %%g in ('findstr /r /c:"^[ ]*%~2[ ]*=.*" "%~1"') do (
     call :trim-and-set-key-value "%%g" "%%h"
 )
-goto :eof
+exit /b 0
 
 :read-single-key-into-variable
 for /f "tokens=1,2* delims==" %%g in ('findstr /r /c:"^[ ]*%~2[ ]*=.*" "%~1"') do (
     call :trim-and-set-key-value "%~3" "%%h"
 )
-goto :eof
+exit /b 0
 
 :trim-and-set-key-value
 :: %1 [in] string key
@@ -62,7 +61,7 @@ goto :eof
 call call :trim-to-var %~1 %%%~1%%
 goto :eof
 
-:incorrect-number-of-passed-arguments
+:usage
 echo.
 echo Reads `key=value` pairs from a config file and attempts to `set` them as environment variables.
 echo.
@@ -80,4 +79,4 @@ echo   3. Read the whole file at once:
 echo.
 echo        %~n0 [configfile]
 echo.
-goto :eof
+exit /b 1
