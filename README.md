@@ -6,11 +6,11 @@ This bundle of `.cmd` scripts will let you run a _VirtualBox_ VM from any remova
 
 ## Requirements
 
-Windows with a preinstalled version of VirtualBox (version 7.x.x) and a prepared VM.
+Windows with a pre-installed version of VirtualBox (version 7.x.x) and a prepared VM.
 
 ## How to use
 
-This repository comes with the following files and folders:
+First, a quick overview and description of the files and folders that come with this repository:
 
 - `📁 Scripts` -> supporting script files
 - `📁 Shared` -> shared folder
@@ -21,7 +21,7 @@ This repository comes with the following files and folders:
 - `📟 Run.cmd` -> runs the VM in immutable mode
 - `📟 RunMutable.cmd` -> runs the VM in mutable mode
 
-1. Copy the above files and folders to any locationon a removable drive.
+1. Copy the whole repository to any location on a removable drive.
    
 2. Put your VM's files (`.vbox\.vdi\.vmdk` etc...) in the `📁 VM` folder. 
    
@@ -44,7 +44,7 @@ VM_SHARE_RELATIVE_PATH=Shared
 > - The `VM_VBOX_UUID` can be found inside the `.vbox` file of the VM.
 > - The `VM_HDD_UUID` can be found via `File>Tools>Virtual Media Manager` in VirtualBox, selecting the disk, then the `Information` tab.
 
-3. Chose a name for `VM_SHARE_NAME` and modify, relocate or rename the `📁 Shared` folder, as you wish, and configure its relative path with `VM_SHARE_RELATIVE_PATH`.
+3. Choose a name for `VM_SHARE_NAME` and modify, relocate or rename the `📁 Shared` folder as you wish, and configure its relative path with `VM_SHARE_RELATIVE_PATH`.
    
 4. Make sure the VM is **NOT** registered (anymore) within your VirtualBox installation.
    
@@ -55,8 +55,8 @@ VM_SHARE_RELATIVE_PATH=Shared
 Effectively this tool just automates the following steps when temporary running a VM from a 'remote' location within an already installed version of VirtualBox on Windows:
 
 1. Registers the VM within VirtualBox
-2. Attach the configured shared folder
-3. Attach the virtual harddisk (mutable or immutable)
+2. Attach the configured shared folder to the VM
+3. Attach the virtual harddisk (mutable or immutable) to the VM and VirtualBox Media Manager
 4. Runs the VM
 5. Waits for the VM to be stopped
 6. Detach the harddisk
@@ -68,11 +68,11 @@ The shared folder can typically be used for read/write storage, while the VM its
 
 ## Some Tips
 
-Use `📟 RunMutable.cmd` **only** when you actually want to make changes to (or update) the guest OS in the VM. Use the Shared folder for storage of data that needs to be accessible and mutable from within the guest OS. 
+Use `📟 RunMutable.cmd` **only** when you actually want to make changes to (or update) the guest OS in the VM. Use the Shared folder for storage of data that needs to be accessible and mutable from within both the guest and host OS.
  	
-Use `📟 Compact.cmd` utility to reduce the size of the virtual harddisks of the guest OS. Before doing this make sure to clean up the guest OS, and, ideally, also 'zero clear' it's partitions (i.e. overwriting all unused space with zeros), so the disk can be compacted as much as possible.
+Use `📟 Compact.cmd` utility to reduce the size of the virtual harddisks of the guest OS. Before doing this, make sure to clean up the guest OS, and, ideally, also 'zero clear' it's partitions (i.e. overwriting all unused space with zeros), so the disk can be compacted as much as possible.
 
-Each of the script files in `📁 Scripts` can be run separately. See `Scripts\StartScript.cmd` for an example of their order. This can be useful for (step-by-step) debugging or when something may have gone, like, for example when a previous run got interrupted and the VM didn't get unregistered with VirtualBox.
+Each of the script files under `📁 Scripts` can be run separately. See `Scripts\StartScript.cmd` for an example of the order in which they are normally ran. This can be useful for (step-by-step) debugging or when something may have gone wrong, like, for example when a previous run got interrupted and the VM didn't get properly unregistered with VirtualBox.
 
 ## Mounting the shared folder under a Linux guest OS
 
@@ -83,7 +83,7 @@ mkdir /home/<user>/shared
 sudo mount -t vboxsf -o uid=1000,gid=1000 vboxshare /home/<user>/shared  
 ```
 
-Or mount the share at bootup by putting it in `/etc/fstab`:
+Or mount the share at boot by putting it in `/etc/fstab`:
 
 ```
 vboxshare    (/mnt/shared)    vboxsf    defaults,uid=(1000),gid=(1000),umask=0022    0    0
