@@ -8,7 +8,7 @@ This bundle of `.cmd` scripts will let you run a _VirtualBox_ VM from any remova
 
 Windows with a pre-installed version of VirtualBox (version 7.x.x) and a prepared VM.
 
-## How to use
+## Prepare and configure your VM
 
 First, a quick overview and description of the files and folders that come with this repository:
 
@@ -21,11 +21,13 @@ First, a quick overview and description of the files and folders that come with 
 - `📟 Run.cmd` -> runs the VM in immutable mode
 - `📟 RunMutable.cmd` -> runs the VM in mutable mode
 
-1. Copy the whole repository to any location on a removable drive.
-   
-2. Put your VM's files (`.vbox\.vdi\.vmdk` etc...) in the `📁 VM` folder. 
-   
-3. Modify the `📝 Config.ini` and enter the right information for your VM and setup:
+To prepare your VM for transfer to the removable medium:
+
+1. Copy **ALL** the files and folders of this repository to any location on a removable drive.
+2. Make sure the VM has **no snapshots!** or that they have been merged. 
+   > [!WARNING] Any remaining snapshots will end up being removed!!
+3. Make sure the VM has only has **1 harddisk** attached to **SATA port 0**.
+4. Modify the `📝 Config.ini` and enter the right information for your VM:
 
 ```bash
 VM_NAME=VirtualMachine
@@ -39,16 +41,15 @@ VM_HDD_FILE=VirtualMachine.vdi
 VM_SHARE_NAME=vboxshare
 VM_SHARE_RELATIVE_PATH=Shared
 ```
-
 > [!NOTE]
-> - The `VM_VBOX_UUID` can be found inside the `.vbox` file of the VM.
-> - The `VM_HDD_UUID` can be found via `File>Tools>Virtual Media Manager` in VirtualBox, selecting the disk, then the `Information` tab.
+>   - Find the `VM_HDD_UUID` for the harddisk in **VirtualBox**, by finding it via `File>Tools>Virtual Media Manager`, selecting the disk -> right-click -> `Properties` , then the Information tab. 
+>   - Determine the name and `VM_VBOX_UUID` by opening the VM's `.vbox` file in an editor. <br>(**OPTIONAL:** you can change the name of the VM and it's files or even it UUID if so desired)
+>   - Choose a name for `VM_SHARE_NAME` and modify, relocate or rename the `📁 Shared` folder as you wish, and configure its relative path with `VM_SHARE_RELATIVE_PATH`.
 
-3. Choose a name for `VM_SHARE_NAME` and modify, relocate or rename the `📁 Shared` folder as you wish, and configure its relative path with `VM_SHARE_RELATIVE_PATH`.
-   
-4. Make sure the VM is **NOT** registered (anymore) within your VirtualBox installation.
-   
-5. Run the VM with `📟 Run.cmd` or `📟 RunMutable.cmd`.
+5. Detach the VM from VirtualBox, if it still is.
+6. Detach any remaining media/harddisks related to the VM in `File>Tools>Virtual Media Manager`.
+7. Put all your VM files (`.vbox\.vdi\.vmdk` etc...) in the `📁 VM` folder. 
+8. Run the VM with `📟 Run.cmd` or `📟 RunMutable.cmd`!
 
 ## How it works
 
@@ -56,15 +57,15 @@ Effectively this tool just automates the following steps when temporary running 
 
 1. Registers the VM within VirtualBox
 2. Attach the configured shared folder to the VM
-3. Attach the virtual harddisk (mutable or immutable) to the VM and VirtualBox Media Manager
+3. Attach the virtual harddisk, either as mutable or immutable
 4. Runs the VM
 5. Waits for the VM to be stopped
 6. Detach the harddisk
 7. Detach the shared folder
-8. Removes the harddisk and it's snapshots from the VirtualBox Media Manager
+8. Removes the harddisk and it's snapshots from the VirtualBox (snapshots will be removed)
 9. Unregisters the VM
 
-The shared folder can typically be used for read/write storage, while the VM itself can be run in an immutable state. Configuration is done via `📝 Config.ini`. 
+The shared folder can typically be used for read/write storage, while the VM itself can be run in an immutable state. Configuration is done via `📝 Config.ini`.
 
 ## Some Tips
 
@@ -74,9 +75,28 @@ Use `📟 Compact.cmd` utility to reduce the size of the virtual harddisks of th
 
 Each of the script files under `📁 Scripts` can be run separately. See `Scripts\StartScript.cmd` for an example of the order in which they are normally ran. This can be useful for (step-by-step) debugging or when something may have gone wrong, like, for example when a previous run got interrupted and the VM didn't get properly unregistered with VirtualBox.
 
-## Mounting the shared folder under a Linux guest OS
+## Known Limitations/Issues
 
- To mount a shared folder named `vboxshare` under Linux:
+- > [!WARNING] Snapshots are not supported yet and will be removed!
+- Only 1 virtual disk is supported.
+- The virtual disk is assumed to be connected to SATA port 0.
+- Only 1 shared folder (with a relative path) can be configured with this tool.
+- The shared folder is not auto-mounted, so you'll need to mount it yourself in the Guest OS (see below!).
+- The shared folder is always mounted as read/write.
+- The guest OS mount point for the shared folder cannot be specified yet
+
+## TODOs / Potential Future Improvements 
+
+- Make `--automount` and `--readonly` for the shared folder configurable in the config file.
+- Add the ability to specify the guest OS mount point in the config file.
+- Automatically determine the UUIDs for VM and disks.
+- Add ability to add a few virtual harddisks in either mutable or immutable mode.
+- Support for disks different than SATA (e.g. IDE, SCSI, nVME)
+- Find a way to support snapshots.
+
+## Extra: How to mount the shared folder under a Linux Guest-OS
+
+To mount a shared folder named `vboxshare` under Linux:
 
 ```bash 
 mkdir /home/<user>/shared
@@ -96,15 +116,3 @@ Note that for this to work edit `/etc/module` to add `vboxsf` so that it is pres
 ```bash
 sudo usermod -aG vboxsf $USER
 ```
-
-## Known Limitations/Issues
-
-- Only 1 shared folder can be configured with this tool (and have a path on the removable drive). Permanent shares can still be added as well.
-- The shared folder is not auto-mounted, so you'll need to mount it yourself in the Guest OS.
-- The shared folder is always mounted as read/write.
-- The guest OS mount point for the shared folder can not be specified yet
-
-**TODOs:** 
-
-- Make `--automount` and `--readonly` for the shared folder configurable in the config file.
-- Add the ability to specify the guest OS mount point in the config file.
