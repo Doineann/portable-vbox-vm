@@ -10,6 +10,10 @@ call CheckForVirtualBox.cmd
 "%VBOX_INSTALL_DIR%\VBoxManage.exe" list vms | findstr /c:"%VM_VBOX_UUID%" > nul
 if %errorlevel% == 0 goto :eof
 
+:: Cleanup the vbox file first, if necessary
+
+call CleanupVboxFile.cmd
+
 :: Register the VM
 
 echo - Register Virtual Machine
